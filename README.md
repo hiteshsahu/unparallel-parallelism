@@ -167,13 +167,14 @@ Follow the instructions to download [Installer of LInux WSL- Ubuntu 2.0 X86_64](
     ```bash
     wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda_13.0.2_580.95.05_linux.run
     ```
-- lastly run the installer
 
+- lastly run the installer:
+- 
   ```bash
   sudo sh cuda_13.0.2_580.95.05_linux.run
   ```
 
-- Add to $PATH
+- Add to `$PATH`
 
    ```bash
     echo $SHELL
@@ -199,23 +200,42 @@ Validate Installation to get info about the **Nvidia CUDA compiler **(`nvcc`) & 
 
 # ▶️ **RUN THE PROJECT**
 
-1. Start WSL 2.0
+## 1. Run with WSL locally
+
+### 1.1 Start WSL 2.0
     
-    ```bash
-    wsl --list --verbose
-    ```
+```bash
+wsl --list --verbose
+```
 
-2. 📦 Build the Docker container with GPU support:
+### 1.2 Complie the Code
+
+```bash
+nvcc vector_add.cu -o vector_add
+```
+
+### 1.3 Run the Code
+
+```bash
+./vector_add
+```
+
+## 2. 📦 With Docker container (WIP)
+
+
+### 2.1 Build Image
    
-    ```bash
-        docker build -t cuda-workshop .
-    ```
+```bash
+docker build -t cuda-workshop .
+```
 
-3. 🐋 Run the container:
 
-    ```bash
-        docker run --gpus all -it cuda-workshop
-    ```
+### 2.2 Run Image
+🐋 Run the container:
+
+```bash
+docker run --gpus all -it cuda-workshop
+```
 
 ---
 

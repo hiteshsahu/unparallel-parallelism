@@ -65,13 +65,19 @@ echo "👤 Adding current user to docker group..."
 # ----------------------------
 echo "⚡ Installing CUDA Toolkit (no driver)..."
 
-CUDA_RUNFILE="cuda_13.0.2_580.95.05_linux.run"
-CUDA_RUNFILE_URL="https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers//${CUDA_RUNFILE_BASENAME}"
+# Get directory where this script lives
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# Define your own temp directory
+CUDA_TEMP_DIR="$PROJECT_DIR/cuda_temp"
+mkdir -p "$CUDA_TEMP_DIR"
+
+CUDA_RUNFILE_URL="https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda_13.0.2_580.95.05_linux.run"
+CUDA_RUNFILE="$CUDA_TEMP_DIR/$(basename "$CUDA_RUNFILE_URL")"
 
 # Download if missing
 if [ ! -f "$CUDA_RUNFILE" ]; then
-    echo "⬇️ CUDA installer not found, downloading..."
+    echo "⬇️ CUDA installer not found, downloading...to $CUDA_RUNFILE"
     wget "$CUDA_RUNFILE_URL" -O "$CUDA_RUNFILE"
 else
     echo "ℹ️ CUDA installer already exists at $CUDA_RUNFILE"
@@ -91,7 +97,6 @@ echo "🌐 Setting up CUDA environment variables..."
 echo 'export PATH=/usr/local/cuda-13.0/bin:$PATH' >> ~/.bashrc
 echo 'export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc
-
 
 # ----------------------------
 # 8️⃣ Verify installations
