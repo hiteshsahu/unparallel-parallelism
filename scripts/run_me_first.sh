@@ -56,8 +56,8 @@ sudo apt install -y docker-ce docker-ce-cli containerd.io
 # 5️⃣ Add user to docker group
 # ----------------------------
 echo "👤 Adding current user to docker group..."
-# sudo groupadd docker || true
-# sudo usermod -aG docker $USER
+# sudo groupadd docker 2>/dev/null || echo "ℹ️ Docker group already exists, skipping..."   
+# sudo usermod -aG docker $USER 2>/dev/null || echo "ℹ️ User $USER is already in docker group, skipping..."
 # newgrp docker
 
 # ----------------------------
@@ -94,7 +94,10 @@ sudo sh "$CUDA_RUNFILE" --silent --toolkit
 # 7️⃣ Setup environment variables
 # ----------------------------
 echo "🌐 Setting up CUDA environment variables..."
+grep -qxF 'export PATH=/usr/local/cuda-13.0/bin:$PATH' ~/.bashrc || \
 echo 'export PATH=/usr/local/cuda-13.0/bin:$PATH' >> ~/.bashrc
+
+grep -qxF 'export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH' ~/.bashrc || \
 echo 'export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
 source ~/.bashrc
 

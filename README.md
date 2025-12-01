@@ -19,7 +19,7 @@ No GPUs were harmed in the making of this workshop. Any kernel panics are purely
         │
         ├── scripts/                                # Setup scripts
         │    └── run_me_first.sh                    # Main setup script to prepare environment
-        │    └── cuda_13.0.2_580.95.05_linux.run    # CUDA Toolkit installer (Linux WSL2)
+        │    └── cude_temp/cuda_13.0.2_580.95.05_linux.run    # CUDA Toolkit installer (Linux WSL2)
         │
         └── src/                                    # Project source code
              └── vector_add.cu # Sample CUDA program
@@ -55,8 +55,9 @@ One shot approach to setup everything with help of script.
 - Install rest of tools
 
     ```bash
+    wsl
     cd /mnt/d/GitHub/unparallel-parallelism/scripts
-    ./chmod +x run_me_first.sh
+     chmod +x run_me_first.sh
     ./run_me_first.sh
     ```
 
@@ -218,7 +219,21 @@ nvcc vector_add.cu -o vector_add
 
 ```bash
 ./vector_add
+
+
+// With profiling with Nsight Systems
+nsys profile ./vector_add
+
+
+ncu ./vector_add
+
 ```
+
+SHUTDOWN
+
+> wsl --shutdown
+
+
 
 ## 2. 📦 With Docker container (WIP)
 
