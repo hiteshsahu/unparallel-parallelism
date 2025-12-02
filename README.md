@@ -255,7 +255,11 @@ docker run --gpus all -it cuda-workshop
 ---
 
 ## Refrence
-
+- [CUDA Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#)
+- [CUDA Course](https://github.com/Infatoshi/cuda-course)
+- [CUDA-Programming](https://github.com/brucefan1983/CUDA-Programming)
 - [CUDA Officialdocs CUDA Toolkit 13.0 Update 2](https://developer.nvidia.com/cuda-downloads)
 - [CUDA Sample Code](https://github.com/NVIDIA/cuda-samples)
 - [NVIDIA/CUDA Docker Images](https://hub.docker.com/r/nvidia/cuda/tags)
+- [LeetCUDA](https://github.com/xlite-dev/LeetCUDA)
+- [CUDA Lib Sample](https://github.com/NVIDIA/CUDALibrarySamples)
