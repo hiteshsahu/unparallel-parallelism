@@ -29,7 +29,7 @@ int main() {
     cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
 
-    // ⏳ Launch kernel: 1 block, N threads
+    // ⏳ Launch kernel: 1 block, ARRAY_SIZE threads
     vectorAdd<<<1, ARRAY_SIZE>>>(d_a, d_b, d_c, ARRAY_SIZE);
 
     // 📤 Copy result back to host
