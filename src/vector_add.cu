@@ -29,15 +29,15 @@ int main() {
     cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
     cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
 
-    // ⏳Launch kernel: 1 block, N threads
-    vectorAdd<<<1, N>>>(d_a, d_b, d_c, ARRAY_SIZE);
+    // ⏳ Launch kernel: 1 block, N threads
+    vectorAdd<<<1, ARRAY_SIZE>>>(d_a, d_b, d_c, ARRAY_SIZE);
 
     // 📤 Copy result back to host
     cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
 
     // 📜 Print results
     std::cout << "Vector Addition Result:\n";
-    for (int i = 0; i < N; i++)
+    for (int i = 0; i < ARRAY_SIZE; i++)
         std::cout << a[i] << " + " << b[i] << " = " << c[i] << "\n";
 
     // ♻️ Free device memory
