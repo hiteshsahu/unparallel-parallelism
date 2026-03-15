@@ -1,2 +1,11 @@
 scripts/cuda_temp/*
 .idea/*
+
+
+*.nsys-rep
+*.i
+*.ii
+*.gpu
+*.ptx
+*.cubin
+*.fatbin
