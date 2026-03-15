@@ -12,7 +12,6 @@ No GPUs were harmed in the making of this workshop. Any kernel panics are purely
 
 ## 📁 Folder Structure
 
-
     unparallel-parallelism/
         │
         ├── README.md                               # This README file
@@ -22,10 +21,29 @@ No GPUs were harmed in the making of this workshop. Any kernel panics are purely
         │    └── cude_temp/cuda_13.0.2_580.95.05_linux.run    # CUDA Toolkit installer (Linux WSL2)
         │
         └── src/                                    # Project source code
-             └── vector_add.cu # Sample CUDA program
-             └── ...
-        
+        │      └── cuda
+        │      └── cpp
+        └── test/                                    # Project source code
+              └── cuda
+              └── cpp
 
+
+project
+│
+├─ src
+│   └─ cpp
+│       └─ main.cpp
+│
+├─ test
+│   └─ test_math.cpp
+│
+├─ build
+│   └─ cpp
+│       ├─ app
+│       └─ test_app
+│
+└─ go
+        
 
 ### 📝 Notes
 
@@ -34,7 +52,6 @@ No GPUs were harmed in the making of this workshop. Any kernel panics are purely
 
 
 This structure keeps **setup**, **source code**, and **tooling** clearly separated, making the workshop easier to follow.
-
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -55,8 +72,8 @@ One shot approach to setup everything with help of script.
 - Install rest of tools
 
     ```bash
-    wsl
-    cd /mnt/d/GitHub/unparallel-parallelism/scripts
+     wsl
+     cd /mnt/d/GitHub/unparallel-parallelism/scripts
      chmod +x run_me_first.sh
     ./run_me_first.sh
     ```
@@ -109,7 +126,7 @@ Manually setup required tools
     sudo apt upgrade -y
     sudo apt install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
     ```
-
+  
 - Add Docker’s official repository
 
     ```bash
@@ -135,7 +152,6 @@ Manually setup required tools
 
 - After this, you need to reload your group membership:
     > newgrp docker
-
 
 Lastly Test Docker Installation on WSL2:
 
@@ -199,7 +215,7 @@ Validate Installation to get info about the **Nvidia CUDA compiler **(`nvcc`) & 
 
 -------------------------------------------------------------------------------------------------------------------------------------------------
 
-# ▶️ **RUN THE PROJECT**
+## ▶️ **RUN THE PROJECT**
 
 ## 1. Run with WSL locally
 
@@ -233,17 +249,13 @@ SHUTDOWN
 
 > wsl --shutdown
 
-
-
 ## 2. 📦 With Docker container (WIP)
-
 
 ### 2.1 Build Image
    
 ```bash
 docker build -t cuda-workshop .
 ```
-
 
 ### 2.2 Run Image
 🐋 Run the container:
