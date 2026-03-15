@@ -5,6 +5,9 @@ Welcome to **Unparallel Parallelism**, a fun workshop exploring the quirks and w
 Here, we’ll go from “what is a thread?” to “how do I make thousands of them work… or misbehave?”  
 
 
+$ git config --global user.name "HiteshSahu"
+$ git config --global user.email hiteshkrsahu@gmail.com
+
 ### ⚠️ Disclaimer
 
 No GPUs were harmed in the making of this workshop. Any kernel panics are purely educational.
@@ -28,28 +31,11 @@ No GPUs were harmed in the making of this workshop. Any kernel panics are purely
               └── cpp
 
 
-project
-│
-├─ src
-│   └─ cpp
-│       └─ main.cpp
-│
-├─ test
-│   └─ test_math.cpp
-│
-├─ build
-│   └─ cpp
-│       ├─ app
-│       └─ test_app
-│
-└─ go
-        
 
 ### 📝 Notes
 
 - `scripts/` – contains all setup and helper scripts.  
 - `src/` – contains your main project code that you will compile and run inside WSL2/Docker.  
-
 
 This structure keeps **setup**, **source code**, and **tooling** clearly separated, making the workshop easier to follow.
 
@@ -266,7 +252,7 @@ docker run --gpus all -it cuda-workshop
 
 ---
 
-## Refrence
+## CUDA Reference
 - [CUDA Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#)
 - [CUDA Course](https://github.com/Infatoshi/cuda-course)
 - [CUDA-Programming](https://github.com/brucefan1983/CUDA-Programming)
@@ -275,3 +261,6 @@ docker run --gpus all -it cuda-workshop
 - [NVIDIA/CUDA Docker Images](https://hub.docker.com/r/nvidia/cuda/tags)
 - [LeetCUDA](https://github.com/xlite-dev/LeetCUDA)
 - [CUDA Lib Sample](https://github.com/NVIDIA/CUDALibrarySamples)
+
+## CPP Reference
+- [CPP](https://cplusplus.com/doc/tutorial/)
