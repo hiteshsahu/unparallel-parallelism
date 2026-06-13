@@ -1,302 +1,352 @@
-# 🧮 Unparallel Parallelism
+# Unparallel Parallelism
 
-Welcome to **Unparallel Parallelism**, a fun workshop exploring the quirks and wonders of parallel computing with CUDA and GPUs.  
+A hands-on workshop exploring parallel computing with CUDA and GPUs — from "what is a thread?" to making thousands of them work (or misbehave).
 
-Here, we’ll go from “what is a thread?” to “how do I make thousands of them work… or misbehave?”  
+> **Disclaimer:** No GPUs were harmed in the making of this workshop. Any kernel panics are purely educational.
 
+---
 
-### ⚠️ Disclaimer
-
-No GPUs were harmed in the making of this workshop. Any kernel panics are purely educational.
-
-
-## 📁 Folder Structure
-
-    unparallel-parallelism/
-        │
-        ├── README.md                               # This README file
-        │
-        ├── scripts/                                # Setup scripts
-        │    └── run_me_first.sh                    # Main setup script to prepare environment
-        │    └── cude_temp/cuda_13.0.2_580.95.05_linux.run    # CUDA Toolkit installer (Linux WSL2)
-        │
-        └── src/                                    # Project source code
-        │      └── cuda
-        │      └── cpp
-        └── test/                                    # Project source code
-              └── cuda
-              └── cpp
-
-
-
-### 📝 Notes
-
-- `scripts/` – contains all setup and helper scripts.  
-- `src/` – contains your main project code that you will compile and run inside WSL2/Docker.  
-
-This structure keeps **setup**, **source code**, and **tooling** clearly separated, making the workshop easier to follow.
-
--------------------------------------------------------------------------------------------------------------------------------------------------
-
-# ⚙️ **SETUP**
-
-## 💻 Prerequisites
-- 🐧 Windows or Linux machine with NVIDIA GPU. Below instruction are meant for Windows machine but you can do the same in Linux machine.
-- ⛔ MacOS not supported by CUDA
-
-
--------------------------------------------------------------------------------------------------------------------------------------------------
-
-# ⚙️ **SETUP**
-
-### 🐧 Install [`WSL2`](https://learn.microsoft.com/en-us/windows/wsl/) and setup Ubuntu on the Host Windows Machine
-> This will give you a Linux environment where Docker + NVIDIA GPU works.
-  - 🐧 VERSION 2 → WSL2 (required for GPU support).
-  - ⛔ VERSION 1 → WSL1 (no GPU support).
-
-```bash
-    # Install Ubuntu and give username pass when asked eg: (hitesh/root)
-    wsl --install -d Ubuntu-22.04
-
-    # Check available Installed Destro
-    wsl --list --verbose
-
-    # Set to WSL 2
-    wsl --set-default-version 2
-    wsl --set-version <Distribution Name>  2
-    wsl --set-version   Ubuntu-22.04 2
-
-    #  Start Destro
-    wsl --distribution <Distribution Name> --user <User Name>
-    wsl --distribution  Ubuntu-22.04 --user hitesh
-
-    wsl --terminate <Distribution Name>
-    wsl --terminate Ubuntu-22.04
+## Folder Structure
 
 ```
-
-- Update your WSL2 Ubuntu
-
-```bash
-    sudo apt update
-    sudo apt upgrade -y
-
-    #  Install Utils
-    sudo apt install -y apt-transport-https ca-certificates curl software-properties-common gnupg lsb-release
-
-```
-
-### 🎮 NVIDIA GPU drivers for WSL Linux on the Host Windows Machine
-Download NVIDIA drivers for WSL: [https://developer.nvidia.com/cuda/wsl](https://developer.nvidia.com/cuda/wsl)
-
-After installation, check on host machine:
-
-```bash
-
-    nvidia-smi
-
-    // Output should look like this
-
-    +-----------------------------------------------------------------------------------------+
-    | NVIDIA-SMI 560.35.02              Driver Version: 560.94         CUDA Version: 12.6     |
-    |-----------------------------------------+------------------------+----------------------+
-    | GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
-    | Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
-    |                                         |                        |               MIG M. |
-    |=========================================+========================+======================|
-    Segmentation fault (core dumped)
-
-```
-
-### 🐳 Install Docker on WSL2 Linux
-
- Add Docker’s official repository
-
-    ```bash
-
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
-
-    echo \
-    "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
-    $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-    ```
-
-- Install Docker Engine
-
-    ```bash
-    sudo apt update
-    sudo apt install -y docker-ce docker-ce-cli containerd.io
-    ```
-
-- Add your user to the Docker group
-
-    ```bash
-    sudo groupadd docker        # only needed if the group doesn't exist
-    sudo usermod -aG docker $USER
-    ```
-
-- After this, you need to reload your group membership:
-    > newgrp docker
-
-Lastly Test Docker Installation on WSL2:
-
-```bash
-    docker --version
-
-    # Starts Docker ::  must be on WSL2 
-    sudo service docker start
-
-    #  Run test container
-    docker run hello-world
-
-```
-
-### 🌀 Enable GPU support inside WSL2 
-
-Test GPU passthrough with [**Official CUDA Docker Image**](https://hub.docker.com/r/nvidia/cuda/tags):
-
-> docker run --gpus all nvidia/cuda:13.0.2-cudnn-devel-ubuntu22.04 nvidia-smi
-
-## 📟 Install CUDA CLI inside WSL2 Linux Ubuntu 
-
-- First you will need `gcc` in WSL2 to compile CUDA source
-
-```bash
-    # Install gcc
-    sudo apt install gcc
-    sudo apt-get install g++
-
-    # Verify
-    gcc --version 
-
-```
-
-Follow the instructions to download [Installer of Linux WSL- Ubuntu 2.0 X86_64](https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&Distribution=WSL-Ubuntu&target_version=2.0&target_type=runfile_local)
-
-- It will take some time to download Cuda source
-
-```bash
-    wget https://developer.download.nvidia.com/compute/cuda/13.0.2/local_installers/cuda_13.0.2_580.95.05_linux.run
-
-```
-
-- lastly run the Cuda installer:
-
-    ```bash
-    sudo sh cuda_13.0.2_580.95.05_linux.run
-    ```
-
-- Add to `$PATH`
-
-```bash
-    echo $SHELL
-
-    # Output: /bin/bash or /bin/zsh
-
-    #  If it says bin/bash, add the following lines to the ~/.bashrc rile. 
-    #  If it says bin/zsh,  add to the ~/.zshrc file.
-
-    echo 'export PATH=/usr/local/cuda-13.0/bin:$PATH' >> ~/.bashrc
-    echo 'export LD_LIBRARY_PATH=/usr/local/cuda-13.0/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
-    source ~/.bashrc
-
-```
-
-Validate Installation to get info about the **Nvidia CUDA compiler **(`nvcc`) & connected GPU **System Management Interface**(`smi`)
-
-```bash
-    nvcc --version
-    nvidia-smi
-
-```
-
-Congragulations now you are ready to compile CUDA code
-
-### Note ::  Using shell Script 📝
-One shot approach to setup everything with help of script.
-
-- Install WSL and Linux from Prerequisites
-- Install rest of tools with helper script
-
-    ```bash
-    # start WSL
-    wsl
-
-    # Mount script
-    cd /mnt/d/GitHub/unparallel-parallelism/scripts
-    
-    # Run setp script
-    chmod +x run_me_first.sh
-    ./run_me_first.sh
-
-    ```
-----------------------
-
-## ▶️ **RUN THE PROJECT**
-
-## 1. Run with WSL locally
-
-### Start WSL 2.0
-    
-```bash
- wsl --list --verbose
-```
-
-### Complie the Code
-
-```bash
-    cd /mnt/d/GitHub/unparallel-parallelism/src
-
-    nvcc vector_add.cu -o vector_add
-```
-
-### Run the Code
-
-```bash
-    ./vector_add
-
-    # With profiling with Nsight Systems
-    nsys profile ./vector_add
-    ncu ./vector_add
-
-```
-
-### SHUTDOWN
-
-> wsl --shutdown
-
-----
-
-## 2. 📦 With Docker container (WIP)
-
-###  Build Image
-   
-```bash
-docker build -t cuda-workshop .
-
-```
-
-
-### Run Image
-🐋 Run the container:
-
-```bash
-docker run --gpus all -it cuda-workshop
-
+unparallel-parallelism/
+    │
+    ├── README.md                    # This file
+    ├── CMakeLists.txt               # Build configuration
+    ├── .clang-format                # C++/CUDA formatting rules
+    │
+    ├── scripts/                     # Setup scripts
+    │    └── run_me_first.sh         # One-shot environment setup
+    │
+    ├── src/                         # Source code
+    │    ├── cuda/
+    │    │    └── vector_add.cu      # CUDA vector addition example
+    │    └── cpp/
+    │         └── main.cpp
+    │
+    ├── test/                        # Tests
+    │    └── cpp/
+    │         └── test_main.cpp
+    │
+    └── go/                          # Go examples
 ```
 
 ---
 
-## CUDA Reference
-- [CUDA Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#)
-- [CUDA Course](https://github.com/Infatoshi/cuda-course)
-- [CUDA-Programming](https://github.com/brucefan1983/CUDA-Programming)
-- [CUDA Officialdocs CUDA Toolkit 13.0 Update 2](https://developer.nvidia.com/cuda-downloads)
-- [CUDA Sample Code](https://github.com/NVIDIA/cuda-samples)
-- [NVIDIA/CUDA Docker Images](https://hub.docker.com/r/nvidia/cuda/tags)
-- [LeetCUDA](https://github.com/xlite-dev/LeetCUDA)
-- [CUDA Lib Sample](https://github.com/NVIDIA/CUDALibrarySamples)
+## Setup — CUDA on Windows via WSL2
 
-## CPP Reference
-- [CPP](https://cplusplus.com/doc/tutorial/)
+Run GPU-accelerated workloads natively inside Linux on your Windows machine — no dual-boot required. As of 2021, NVIDIA officially supports CUDA inside WSL2.
+
+### What You'll Need
+
+- Windows 10 (version 21H2 or later) or Windows 11
+- An NVIDIA GPU (Maxwell / GTX 900 series or newer)
+- At least 8 GB RAM (16 GB recommended for ML workloads)
+- ~15 GB free disk space
+
+> CUDA via WSL2 does **not** support AMD or Intel GPUs. This guide is NVIDIA-only.
+
+---
+
+### Step 1 — Enable WSL2
+
+Open **PowerShell as Administrator**:
+
+```powershell
+wsl --install
+```
+
+This installs WSL2 and Ubuntu in one shot on Windows 10 21H2+ and Windows 11. Restart when prompted.
+
+If you already have WSL1 installed:
+
+```powershell
+wsl --set-default-version 2
+wsl --set-version Ubuntu 2
+```
+
+Verify WSL2 is active:
+
+```powershell
+wsl -l -v
+```
+
+You should see `VERSION 2` next to your distro.
+
+---
+
+### Step 2 — Install the NVIDIA Windows Driver (Host Side)
+
+**Install the GPU driver on Windows, not inside WSL.** WSL2 shares the Windows GPU driver through a translation layer — installing a Linux driver inside WSL will break things.
+
+1. Go to [https://www.nvidia.com/Download/index.aspx](https://www.nvidia.com/Download/index.aspx)
+2. Select your GPU model, Windows 10/11, and the latest Game Ready or Studio driver
+3. Install it on Windows as normal
+
+After installation, verify the driver is visible from PowerShell:
+
+```powershell
+nvidia-smi
+```
+
+You should see your GPU listed with the driver version. If `nvidia-smi` works on Windows, you're ready to move inside WSL.
+
+---
+
+### Step 3 — Open Your WSL2 Ubuntu Environment
+
+```powershell
+wsl
+```
+
+Update the package list:
+
+```bash
+sudo apt update && sudo apt upgrade -y
+```
+
+---
+
+### Step 4 — Install the CUDA Toolkit Inside WSL
+
+Use NVIDIA's **WSL-Ubuntu** specific CUDA packages — not the standard Linux ones. These skip installing the GPU driver (since it lives on the Windows side).
+
+```bash
+# Add the WSL-Ubuntu CUDA keyring
+wget https://developer.download.nvidia.com/compute/cuda/repos/wsl-ubuntu/x86_64/cuda-keyring_1.1-1_all.deb
+sudo dpkg -i cuda-keyring_1.1-1_all.deb
+
+# Update and install CUDA toolkit
+sudo apt update
+sudo apt install -y cuda-toolkit-12-4
+```
+
+> Use `cuda-toolkit`, not `cuda`. The `cuda` meta-package includes the driver — the `cuda-toolkit` package is driver-free, which is what WSL needs.
+
+Add CUDA to your PATH:
+
+```bash
+echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc
+echo 'export LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH' >> ~/.bashrc
+source ~/.bashrc
+```
+
+---
+
+### Step 5 — Verify the Installation
+
+Check the NVIDIA CUDA compiler:
+
+```bash
+nvcc --version
+```
+
+Expected output:
+
+```
+nvcc: NVIDIA (R) Cuda compiler driver
+Cuda compilation tools, release 12.4, V12.4.xx
+```
+
+Verify GPU access from inside WSL:
+
+```bash
+nvidia-smi
+```
+
+You should see the same GPU listed here as from Windows PowerShell.
+
+---
+
+### Step 6 — Run Your First CUDA Program
+
+```bash
+cat > hello.cu << 'EOF'
+#include <stdio.h>
+
+__global__ void helloFromGPU() {
+    printf("Hello from GPU thread %d, block %d!\n", threadIdx.x, blockIdx.x);
+}
+
+int main() {
+    printf("Launching kernel...\n");
+    helloFromGPU<<<2, 4>>>();
+    cudaDeviceSynchronize();
+    printf("Done.\n");
+    return 0;
+}
+EOF
+
+nvcc hello.cu -o hello
+./hello
+```
+
+Expected output:
+
+```
+Launching kernel...
+Hello from GPU thread 0, block 0!
+Hello from GPU thread 1, block 0!
+...
+Done.
+```
+
+If you see output from multiple threads — your GPU is fully operational inside WSL2.
+
+---
+
+### Bonus: Install cuDNN
+
+For PyTorch, TensorFlow, or JAX workloads:
+
+```bash
+sudo apt install -y libcudnn9-cuda-12
+dpkg -l | grep cudnn
+```
+
+### Bonus: Install PyTorch with CUDA Support
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+```
+
+Quick sanity check:
+
+```python
+import torch
+print(torch.cuda.is_available())     # True
+print(torch.cuda.get_device_name(0)) # Your GPU name
+```
+
+---
+
+### One-Shot Setup Script
+
+After completing Step 1 (WSL2 + Ubuntu) and Step 2 (Windows NVIDIA driver), you can run the helper script for the rest:
+
+```bash
+# Start WSL
+wsl
+
+# Navigate to the scripts directory (adjust path as needed)
+cd /mnt/d/GitHub/unparallel-parallelism/scripts
+
+# Run setup script
+chmod +x run_me_first.sh
+./run_me_first.sh
+```
+
+---
+
+### Troubleshooting
+
+**`nvidia-smi` not found inside WSL**
+Your Windows NVIDIA driver is too old. Update to the latest version — drivers before May 2021 don't support WSL2 GPU passthrough.
+
+**`nvcc` not found after installation**
+You likely skipped the PATH export step. Re-run:
+```bash
+echo 'export PATH=/usr/local/cuda/bin:$PATH' >> ~/.bashrc && source ~/.bashrc
+```
+
+**CUDA version mismatch errors**
+The CUDA Toolkit version inside WSL must be equal to or lower than the CUDA version supported by your Windows driver. Check the driver's max CUDA version with `nvidia-smi` on Windows (shown in the top-right of the output).
+
+**WSL2 shows as VERSION 1**
+```powershell
+wsl --set-default-version 2
+wsl --set-version <DistroName> 2
+```
+
+---
+
+### How It Works
+
+WSL2 runs a lightweight Linux VM using Microsoft's hypervisor (Hyper-V). NVIDIA's GPU-PV (GPU Paravirtualization) technology allows this VM to talk directly to the physical GPU through a special user-mode driver (`libdxcore.dll` on Windows ↔ `libdxcore.so` inside WSL). The CUDA toolkit routes compute calls through this bridge, giving near-native GPU performance — typically within 5% of bare metal.
+
+---
+
+## Running the Project
+
+### With WSL2 (Local)
+
+Start WSL and verify:
+
+```bash
+wsl --list --verbose
+```
+
+Compile a source file:
+
+```bash
+cd /mnt/d/GitHub/unparallel-parallelism/src
+nvcc vector_add.cu -o vector_add
+```
+
+Run it:
+
+```bash
+./vector_add
+
+# With profiling
+nsys profile ./vector_add
+ncu ./vector_add
+```
+
+Shut down WSL when done:
+
+```powershell
+wsl --shutdown
+```
+
+---
+
+### With Docker (WIP)
+
+Install Docker on WSL2:
+
+```bash
+# Add Docker's official repository
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+sudo apt install -y docker-ce docker-ce-cli containerd.io
+
+sudo groupadd docker
+sudo usermod -aG docker $USER
+newgrp docker
+```
+
+Test GPU passthrough with the official CUDA image:
+
+```bash
+docker run --gpus all nvidia/cuda:13.0.2-cudnn-devel-ubuntu22.04 nvidia-smi
+```
+
+Build and run this project:
+
+```bash
+docker build -t cuda-workshop .
+docker run --gpus all -it cuda-workshop
+```
+
+---
+
+## References
+
+### CUDA
+- [CUDA C Programming Guide](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html)
+- [CUDA Toolkit Downloads](https://developer.nvidia.com/cuda-downloads)
+- [CUDA Sample Code](https://github.com/NVIDIA/cuda-samples)
+- [CUDA Library Samples](https://github.com/NVIDIA/CUDALibrarySamples)
+- [NVIDIA/CUDA Docker Images](https://hub.docker.com/r/nvidia/cuda/tags)
+- [CUDA Course](https://github.com/Infatoshi/cuda-course)
+- [CUDA Programming Book](https://github.com/brucefan1983/CUDA-Programming)
+- [LeetCUDA](https://github.com/xlite-dev/LeetCUDA)
+
+### C++
+- [CPP Tutorial](https://cplusplus.com/doc/tutorial/)
