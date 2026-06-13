@@ -4,6 +4,7 @@
 #include "cuda_check.cuh"
 
 
+// 🧮 GPU kernel for vector addition
 // Grid-stride loop handles any N, not just N <= 1024.
 __global__ void vectorAdd(const int *a, const int *b, int *c, int n) {
     for (int i = blockIdx.x * blockDim.x + threadIdx.x;
