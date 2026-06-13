@@ -1,6 +1,6 @@
-# Unparallel Parallelism
+# Unparallel Parallelism 🧮
 
-A hands-on workshop exploring parallel computing with CUDA and GPUs — from "what is a thread?" to making thousands of them work (or misbehave).
+A hands-on workshop exploring parallel computing with CUDA and GPUs.
 
 > **Disclaimer:** No GPUs were harmed in the making of this workshop. Any kernel panics are purely educational.
 
@@ -10,44 +10,13 @@ A hands-on workshop exploring parallel computing with CUDA and GPUs — from "wh
 
 WSL2 runs a lightweight Linux VM using Microsoft's hypervisor (Hyper-V). NVIDIA's GPU-PV (GPU Paravirtualization) technology allows this VM to talk directly to the physical GPU through a special user-mode driver (`libdxcore.dll` on Windows ↔ `libdxcore.so` inside WSL). The CUDA toolkit routes compute calls through this bridge, giving near-native GPU performance — typically within 5% of bare metal.
 
+Architecture Diagram
+![](assets/cuda_wsl2_architecture.svg)
 
-```mermaid
-flowchart TD
 
-    User["👨‍💻 Developer"]
+Flow of Controls
+![](assets/cuda_wsl2_flowchart.svg)
 
-    subgraph PC["🖥️ Windows Workstation"]
-
-        subgraph Host["🪟 Windows Host"]
-            Windows["💻Windows 11"]
-            Driver["🎮 NVIDIA Windows Driver"]
-            WSL["📟 WSL2 / Hyper-V"]
-            GPU["🧮 NVIDIA GPU"]
-        end
-
-        subgraph Guest["🐧 Ubuntu on WSL2"]
-            Ubuntu["Ubuntu 🐧"]
-            CUDA["⚡ CUDA Toolkit"]
-            Frameworks["🔥 PyTorch / TensorFlow"]
-            Apps["🔢 CUDA Applications"]
-        end
-
-    end
-
-    User --> Ubuntu
-
-    Windows --> Driver
-    Windows --> WSL
-
-    WSL --> Ubuntu
-    Ubuntu --> CUDA
-
-    CUDA --> Frameworks
-    CUDA --> Apps
-
-    CUDA -. "GPU-PV / dxcore" .-> Driver
-    Driver --> GPU
-```
 
 ---
 
