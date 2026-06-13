@@ -1,49 +1,40 @@
-// vector_add.cu
 #include <iostream>
+#include <vector>
+#include "device_vector.cuh"
+#include "vector_add.cuh"
 
-// 🧮 GPU kernel for vector addition
-__global__ void vectorAdd(int *a, int *b, int *c, int n) {
-    int idx = blockIdx.x * blockDim.x + threadIdx.x;
-    if (idx < n) c[idx] = a[idx] + b[idx];
-}
 
 int main() {
-    const int ARRAY_SIZE = 1000;
-    int a[ARRAY_SIZE], b[ARRAY_SIZE], c[ARRAY_SIZE];
 
-    // ✨ Initialize input arrays
-    for (int i = 0; i < ARRAY_SIZE; i++) {
-        a[i] = i;
-        b[i] = i * 2;
+    const int N = 1 << 20; // 1M elements
+
+    // ✨ Initialize Host Vectors
+    std::vector<int> h_a(N), h_b(N), h_c(N);
+    for (int i = 0; i < N; i++) {
+        h_a[i] = i;
+        h_b[i] = i * 2;
     }
 
-    int *d_a, *d_b, *d_c;
-    size_t size = ARRAY_SIZE * sizeof(int);
+    // 📤 Convert & upload Host Vector to Device vector
+    DeviceVector<int> d_a(N), d_b(N), d_c(N);
+    d_a.upload(h_a);
+    d_b.upload(h_b);
 
-    // 📥 Allocate device memory
-    cudaMalloc((void **)&d_a, size);
-    cudaMalloc((void **)&d_b, size);
-    cudaMalloc((void **)&d_c, size);
+    // ⏳ Execute on GPU
+    const int THREADS = 256;
+    const int BLOCKS  = (N + THREADS - 1) / THREADS;
+    vectorAdd<<<BLOCKS, THREADS>>>(d_a.data(), d_b.data(), d_c.data(), N);
 
-    // 📄 Copy data to device
-    cudaMemcpy(d_a, a, size, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_b, b, size, cudaMemcpyHostToDevice);
+    // Validate Errors
+    CUDA_CHECK(cudaGetLastError());
+    CUDA_CHECK(cudaDeviceSynchronize());
 
-    // ⏳ Launch kernel: 1 block, ARRAY_SIZE threads
-    vectorAdd<<<1, ARRAY_SIZE>>>(d_a, d_b, d_c, ARRAY_SIZE);
+    //  📤 Download result from device to host
+    d_c.download(h_c);
 
-    // 📤 Copy result back to host
-    cudaMemcpy(c, d_c, size, cudaMemcpyDeviceToHost);
-
-    // 📜 Print results
-    std::cout << "Vector Addition Result:\n";
-    for (int i = 0; i < ARRAY_SIZE; i++)
-        std::cout << a[i] << " + " << b[i] << " = " << c[i] << "\n";
-
-    // ♻️ Free device memory
-    cudaFree(d_a);
-    cudaFree(d_b);
-    cudaFree(d_c);
+    //📜 Print
+    std::cout << "First result: " << h_a[0] << " + " << h_b[0] << " = " << h_c[0] << "\n";
+    std::cout << "Last  result: " << h_a[N-1] << " + " << h_b[N-1] << " = " << h_c[N-1] << "\n";
 
     return 0;
 }
