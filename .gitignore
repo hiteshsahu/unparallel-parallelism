@@ -1,11 +1,29 @@
 scripts/cuda_temp/*
 .idea/*
+*.sqlite
 
+# Build directory (CMake)
+build/
 
+# Compiled binaries (direct nvcc builds)
+src/cuda/vector_add
+src/cuda/hello
+
+# Profiler output
 *.nsys-rep
+*.qdstrm
+*.ncu-rep
+
+# CUDA intermediate files
 *.i
 *.ii
 *.gpu
 *.ptx
 *.cubin
 *.fatbin
+
+# Object files and libraries
+*.o
+*.a
+*.so
+*.so.*
