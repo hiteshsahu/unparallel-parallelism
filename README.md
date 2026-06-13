@@ -5,16 +5,15 @@ A hands-on workshop exploring parallel computing with CUDA and GPUs.
 > **Disclaimer:** No GPUs were harmed in the making of this workshop. Any kernel panics are purely educational.
 
 
-
 ### 💡 How It Works
 
 WSL2 runs a lightweight Linux VM using Microsoft's hypervisor (Hyper-V). NVIDIA's GPU-PV (GPU Paravirtualization) technology allows this VM to talk directly to the physical GPU through a special user-mode driver (`libdxcore.dll` on Windows ↔ `libdxcore.so` inside WSL). The CUDA toolkit routes compute calls through this bridge, giving near-native GPU performance — typically within 5% of bare metal.
 
-Architecture Diagram
+### Architecture Diagram
 ![](assets/cuda_wsl2_architecture.svg)
 
 
-Flow of Controls
+### Flow of Controls
 ![](assets/cuda_wsl2_flowchart.svg)
 
 
@@ -130,6 +129,17 @@ Update the package list:
 
 ```bash
 sudo apt update && sudo apt upgrade -y
+```
+
+
+Install CMAKE in WSL for building
+
+
+```bash
+sudo apt install -y cmake
+
+# Then verify:
+cmake --version
 ```
 
 ---
@@ -283,7 +293,7 @@ wsl --list --verbose
 ```
 
 
-Naviagte to the program
+Navigate to the program
 
 ```bash
 cd /mnt/e/WorkSpace/GitHub/unparallel-parallelism/src/cuda
@@ -301,7 +311,7 @@ Run it:
 ./vector_add
 ```
 
-#### Congragulations! Now you can build CUDA Apps 🏆
+#### Congratulations! Now you can build CUDA Apps 🏆
 
 ### 📊 With profiling (optional)
 
@@ -319,6 +329,39 @@ Shut down WSL when done:
 wsl --shutdown
 ```
 
+### 🧪 Running Tests
+
+Build The project with cMake in WSL
+
+```bash
+# Clean old build
+rm -rf build
+
+# Configure (create build directory)
+cmake -S . -B build
+
+#  Build all targets including tests
+cmake --build build
+```
+
+Run all tests
+
+
+```bash
+ctest --test-dir build
+
+# Or with more verbose output:
+
+ctest --test-dir build -V
+
+```
+
+Run a specific test
+
+```bash
+ctest --test-dir build -R test_cpp       # C++ test only
+ctest --test-dir build -R test_vector_add # CUDA test only
+```
 ---
 
 ### 🐳 With Docker (WIP)
@@ -353,7 +396,6 @@ Build and run this project:
 docker build -t cuda-workshop .
 docker run --gpus all -it cuda-workshop
 ```
-
 
 
 ---

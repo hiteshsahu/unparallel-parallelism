@@ -12,7 +12,7 @@ set(CMAKE_CUDA_ARCHITECTURES 75 86 89)
 
 # ── Sources ─────────────────────────────────────────────────────────────────
 
-add_executable(app src/cpp/main.cpp)
+add_executable(app src/cpp/playground.cpp)
 
 add_executable(vector_add src/cuda/vector_add.cu)
 target_include_directories(vector_add PRIVATE src/cuda)
@@ -21,7 +21,7 @@ target_include_directories(vector_add PRIVATE src/cuda)
 
 enable_testing()
 
-add_executable(test_cpp test/cpp/test_main.cpp)
+add_executable(test_cpp test/cpp/test_playground.cpp)
 add_test(NAME test_cpp COMMAND test_cpp)
 
 add_executable(test_vector_add test/cuda/test_vector_add.cu)
